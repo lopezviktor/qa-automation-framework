@@ -1,4 +1,3 @@
-from urllib import response
 import pytest
 
 from jsonschema import validate
@@ -12,6 +11,8 @@ def test_get_post_by_id_returns_expected_id(session, base_url, post_id):
     assert response.status_code == 200
 
     post = response.json()
+    validate(instance=post, schema=POST_SCHEMA)
+
     assert isinstance(post, dict)
 
     assert "id" in post
@@ -59,6 +60,18 @@ def test_get_nonexistent_post_returns_404(session, base_url):
 
 def test_single_post_matches_schema(session, base_url):
     response = session.get(f"{base_url}/posts/1")
+    assert response.status_code == 200
 
     post = response.json()
     validate(instance=post, schema=POST_SCHEMA)
+
+
+def test_posts_list_matches_schema(session, base_url):
+    response = session.get(f"{base_url}/posts")
+    assert response.status_code == 200
+
+    posts = response.json()
+    assert isinstance(posts, list)
+
+    for post in posts:
+        validate(instance=post, schema=POST_SCHEMA)
