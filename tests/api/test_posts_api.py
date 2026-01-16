@@ -1,4 +1,8 @@
+from urllib import response
 import pytest
+
+from jsonschema import validate
+from tests.schemas.post_schema import POST_SCHEMA
 
 
 @pytest.mark.parametrize("post_id", [1, 2, 3, 10])
@@ -51,3 +55,10 @@ def test_get_nonexistent_post_returns_404(session, base_url):
     # Keep the assertion tolerant in case the body is empty.
     body_text = response.text.strip()
     assert body_text in ("", "{}")
+
+
+def test_single_post_matches_schema(session, base_url):
+    response = session.get(f"{base_url}/posts/1")
+
+    post = response.json()
+    validate(instance=post, schema=POST_SCHEMA)
