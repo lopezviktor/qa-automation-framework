@@ -1,23 +1,18 @@
-import requests
-
-BASE_URL = "https://jsonplaceholder.typicode.com"
-
-
-def test_get_posts_returns_200():
-    response = requests.get(f"{BASE_URL}/posts")
+def test_get_posts_returns_200(session, base_url):
+    response = session.get(f"{base_url}/posts")
     assert response.status_code == 200
 
 
-def test_get_posts_returns_list():
-    response = requests.get(f"{BASE_URL}/posts")
+def test_get_posts_returns_list(session, base_url):
+    response = session.get(f"{base_url}/posts")
     data = response.json()
 
     assert isinstance(data, list)
     assert len(data) > 0
 
 
-def test_single_post_has_expected_fields():
-    response = requests.get(f"{BASE_URL}/posts/1")
+def test_single_post_has_expected_fields(session, base_url):
+    response = session.get(f"{base_url}/posts/1")
     post = response.json()
 
     expected_fields = ["userId", "id", "title", "body"]
