@@ -1,0 +1,29 @@
+name: Nightly Regression Tests
+
+on:
+  schedule:
+    - cron: '0 3 * * *'  # Runs daily at 3:00 AM UTC
+    workflow_dispatch:
+
+jobs:
+  full-suite:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest requests jsonschema
+
+      - name: Run regression + contract + security tests
+        run: |
+          pytest -m "regression or contract or security"
+
