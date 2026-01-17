@@ -6,7 +6,7 @@ from tests.schemas.post_schema import POST_SCHEMA
 
 @pytest.mark.parametrize("post_id", [1, 2, 3, 10])
 def test_get_post_by_id_returns_expected_id(session, base_url, post_id):
-    response = session.get(f"{base_url}/posts/{post_id}")
+    response = session.get(f"{base_url}/posts/{post_id}", timeout=5)
 
     assert response.status_code == 200
 
@@ -21,12 +21,12 @@ def test_get_post_by_id_returns_expected_id(session, base_url, post_id):
 
 
 def test_get_posts_returns_200(session, base_url):
-    response = session.get(f"{base_url}/posts")
+    response = session.get(f"{base_url}/posts", timeout=5)
     assert response.status_code == 200
 
 
 def test_get_posts_returns_list(session, base_url):
-    response = session.get(f"{base_url}/posts")
+    response = session.get(f"{base_url}/posts", timeout=5)
     data = response.json()
 
     assert isinstance(data, list)
@@ -49,7 +49,7 @@ def test_single_post_has_expected_fields(session, base_url):
 
 
 def test_get_nonexistent_post_returns_404(session, base_url):
-    response = session.get(f"{base_url}/posts/999999")
+    response = session.get(f"{base_url}/posts/999999", timeout=5)
     assert response.status_code == 404
 
     # JSONPlaceholder typically returns an empty JSON object for missing resources.
@@ -59,7 +59,7 @@ def test_get_nonexistent_post_returns_404(session, base_url):
 
 
 def test_single_post_matches_schema(session, base_url):
-    response = session.get(f"{base_url}/posts/1")
+    response = session.get(f"{base_url}/posts/1", timeout=5)
     assert response.status_code == 200
 
     post = response.json()
@@ -67,7 +67,7 @@ def test_single_post_matches_schema(session, base_url):
 
 
 def test_posts_list_matches_schema(session, base_url):
-    response = session.get(f"{base_url}/posts")
+    response = session.get(f"{base_url}/posts", timeout=5)
     assert response.status_code == 200
 
     posts = response.json()
@@ -75,3 +75,29 @@ def test_posts_list_matches_schema(session, base_url):
 
     for post in posts:
         validate(instance=post, schema=POST_SCHEMA)
+
+def test_posts_response_has_json_content_type(session, base_url):
+    response = session.get(f"{base_url}/posts", timeout=5)
+    assert response.status_code == 200
+
+    content_type = response.headers.get("Content-Type")
+    assert content_type is not None
+    assert content_type.startswith("application/json")
+
+def test_error_response_do_not_leak_stack_traces(session, base_url):
+    response = session.get(f"{base_url}/posts/999999", timeout=5)
+
+    body = response.text.lower()
+
+    forbidden_markers = [
+        "traceback",
+        "exception",
+        "stack trace",
+        "nullpointer",
+        "sql",
+        "/usr/",
+        "at ",
+    ]
+    for maker in forbidden_markers:
+        assert maker not in body
+
