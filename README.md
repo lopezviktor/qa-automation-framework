@@ -2,6 +2,10 @@
 
 # QA Automation Framework (PyTest)
 
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,githubactions&perline=6" />
+</p>
+
 A lightweight **QA Automation framework** built with **Python** and **PyTest** to validate REST APIs through **automated testing**, **contract validation**, **basic security checks**, and **CI pipelines**.
 
 This project is designed as a **realistic example of how QA Automation / SDET practices are applied in production environments**, focusing on fast feedback, system reliability, and maintainability.
